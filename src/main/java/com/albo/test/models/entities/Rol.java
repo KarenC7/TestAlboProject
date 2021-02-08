@@ -1,12 +1,9 @@
 package com.albo.test.models.entities;
 
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -18,17 +15,6 @@ public class Rol {
 	@Column(name = "NAME")
 	private String name;
 	
-	@OneToMany(cascade = CascadeType.ALL, mappedBy ="rol")
-    private List<RolXCollaborator> collaborators;
-	
-	
-	
-	public List<RolXCollaborator> getCollaborators() {
-		return collaborators;
-	}
-	public void setCollaborators(List<RolXCollaborator> collaborators) {
-		this.collaborators = collaborators;
-	}
 	public Long getIdRol() {
 		return idRol;
 	}

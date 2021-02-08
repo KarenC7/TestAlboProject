@@ -22,14 +22,16 @@ public class ComicCharacter {
 	private Date lastSync;
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy ="character")
-    private List<CharacterXRol> roles;
+    private List<CharacterXRolXCollaborator> relations;
+	
 
 	
-	public List<CharacterXRol> getRoles() {
-		return roles;
+	
+	public List<CharacterXRolXCollaborator> getRelations() {
+		return relations;
 	}
-	public void setRoles(List<CharacterXRol> roles) {
-		this.roles = roles;
+	public void setRelations(List<CharacterXRolXCollaborator> relations) {
+		this.relations = relations;
 	}
 	public Long getIdCharacter() {
 		return idCharacter;

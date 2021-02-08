@@ -13,18 +13,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.albo.test.models.dao.ICharacterXRolDao;
+import com.albo.test.models.dao.ICharacterXRolXCollaboratorDao;
 import com.albo.test.models.dao.ICollaboratorDao;
 import com.albo.test.models.dao.IComicCharacterDao;
 import com.albo.test.models.dao.IRolDao;
-import com.albo.test.models.dao.IRolXCollaboratorDao;
 import com.albo.test.models.entities.Collaborator;
 import com.albo.test.models.entities.ComicCharacter;
 import com.albo.test.models.entities.Rol;
-import com.albo.test.models.entities.RolXCollaborator;
-import com.albo.test.models.entities.RolXCollaboratorIdentity;
-import com.albo.test.models.entities.CharacterXRol;
-import com.albo.test.models.entities.CharacterXRolIdentity;
+import com.albo.test.models.entities.CharacterXRolXCollaborator;
+import com.albo.test.models.entities.CharacterXRolXCollaboratorIdentity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
@@ -35,9 +32,8 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	@Autowired
 	private IComicCharacterDao characterDao;
 	@Autowired
-	private ICharacterXRolDao characterRolDao;
-	@Autowired
-	private IRolXCollaboratorDao rolCollaboratorDao;
+	private ICharacterXRolXCollaboratorDao characterRolDao;
+
 	@Autowired
 	private IRolDao rolDao;
 	 //Se declara una variable mapper global que se utilizara para mappear el objeto a la entidad
@@ -55,8 +51,7 @@ public class CatalogsServiceImpl implements ICatalogsService {
 				return rolDao.findAll();
 			case "characterxrol":
 				return characterRolDao.findAll();
-			case "rolxcollaborator":
-				return rolCollaboratorDao.findAll();
+			
 			default:
 				return null;
 		}
@@ -97,15 +92,11 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	        		Rol ro = mapper.convertValue(entity, Rol.class);
 	            	return rolDao.save(ro);
 	        	case "characterxrol":                
-	        		CharacterXRolIdentity ide = mapper.convertValue(entity, CharacterXRolIdentity.class);
-	        		CharacterXRol chcol = new CharacterXRol();
+	        		CharacterXRolXCollaboratorIdentity ide = mapper.convertValue(entity, CharacterXRolXCollaboratorIdentity.class);
+	        		CharacterXRolXCollaborator chcol = new CharacterXRolXCollaborator();
 	            	chcol.setCharacterXRolIdentity(ide);
 	        		return characterRolDao.save(chcol);
-	        	case "rolxcollaborator":                
-	        		RolXCollaboratorIdentity rocId = mapper.convertValue(entity, RolXCollaboratorIdentity.class);
-	        		RolXCollaborator roc = new RolXCollaborator();
-	            	roc.setRolXCollaboratorIdentity(rocId);
-	        		return rolCollaboratorDao.save(roc);
+	        	
 	        	
 	            default:
 	                return null;
@@ -141,8 +132,6 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	                break;
 				case "characterxrol":  
 					characterRolDao.deleteAll();  
-				case "rolxcollaborator":  
-					rolCollaboratorDao.deleteAll();  
 	                break;
 	            default:
 	                break;
