@@ -14,18 +14,22 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.albo.test.models.entities.CharacterXRolXCollaboratorIdentity;
 import com.albo.test.models.entities.Collaborator;
 import com.albo.test.models.entities.ComicCharacter;
 import com.albo.test.models.entities.Rol;
-import com.albo.test.models.entities.RolXCollaboratorIdentity;
 import com.albo.test.models.services.ICatalogsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+//Permite que se llamen las APIS desde el dominio de prueba
+@CrossOrigin(origins = {"http://test.albo.mx/"})
 
 @RestController
 @RequestMapping("/_api")
@@ -34,6 +38,11 @@ public class SyncController {
 	@Autowired
 	private ICatalogsService catService;
 	
+	/**
+	 * @desc ruta general para sincronizar los colaboradores de comics de cada personaje
+	 * @param NA
+	 * @return ResponseEntity<?>(JSON del registro de la entidad Collaborators, estatus de respuesta) 
+	*/
 	@GetMapping("/sync/collaborators")
 	public ResponseEntity<?> sync() throws IOException {
 		//Declaramos el response que se retornara
@@ -42,7 +51,7 @@ public class SyncController {
 		List<Object> list = new ArrayList<Object>();
 		
 		//Vaciamos la tabla de relaciones de colaboradores por rol
-		catService.deleteAll("rolxcollaborator");
+		catService.deleteAll("characterxrol");
 		
 		//Obtenemos los personajes dados de alta (Iron man y Capitan America
 		ComicCharacter comic = new ComicCharacter();
@@ -114,10 +123,11 @@ public class SyncController {
 								//Obtenemos la respuesta despues de guardar para obtener Id
 								Collaborator col = mapper.convertValue(ent, Collaborator.class);
 								//Guardamos ahora la relacion de colaborador con el rol			
-								RolXCollaboratorIdentity rel = new RolXCollaboratorIdentity();
+								CharacterXRolXCollaboratorIdentity rel = new CharacterXRolXCollaboratorIdentity();
 								rel.setIdCollaborator(col.getIdCollaborator());
 								rel.setIdRol(newRol.get(0).getIdRol());
-								catService.save("rolxcollaborator", rel);
+								rel.setIdCharacter(co.getIdCharacter());
+								catService.save("characterxrol", rel);
 										
 							}
 									
