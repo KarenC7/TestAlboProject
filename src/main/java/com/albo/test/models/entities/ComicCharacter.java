@@ -22,17 +22,27 @@ public class ComicCharacter {
 	private Date lastSync;
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy ="character")
-    private List<CharacterXRolXCollaborator> relations;
+    private List<CharacterXRolXCollaborator> collaborators;
+	
+	@OneToMany(cascade = CascadeType.ALL, mappedBy ="character")
+    private List<CharXRelatedCharacterXComic> comics;
 	
 
 	
 	
-	public List<CharacterXRolXCollaborator> getRelations() {
-		return relations;
+	public List<CharacterXRolXCollaborator> getCollaborators() {
+		return collaborators;
 	}
-	public void setRelations(List<CharacterXRolXCollaborator> relations) {
-		this.relations = relations;
+	public void setCollaborators(List<CharacterXRolXCollaborator> collaborators) {
+		this.collaborators = collaborators;
 	}
+	public List<CharXRelatedCharacterXComic> getComics() {
+		return comics;
+	}
+	public void setComics(List<CharXRelatedCharacterXComic> comics) {
+		this.comics = comics;
+	}
+	
 	public Long getIdCharacter() {
 		return idCharacter;
 	}
