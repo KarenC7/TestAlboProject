@@ -49,10 +49,16 @@ For example, a user with a public key of "1234" and a private key of "abcd" coul
 
 Note: You can find the call on SyncController.java and change the params
 
-## To execute .sh files
-1. Example: exect on console {yourPath}/getInformation.sh
-Nota: getcollaborators.sh run the syncronization and return the information of services a) and b)
+## To generate JAR
+1. Run As -> Maven build
+2. Write on blackspace "Goals": package
+3. Run
 
+
+## To execute .sh files
+1. Put getInformatio.sh on {projectPath}/target
+1. Example: exect on console ./getInformation.sh  (Recommended Git bash)
+Nota: getInformation.sh run the application, then you can test services
 
 
 
