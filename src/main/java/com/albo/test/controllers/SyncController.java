@@ -19,9 +19,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.albo.test.models.entities.CharXRelatedCharacterXComicIdentity;
 import com.albo.test.models.entities.CharacterXRolXCollaboratorIdentity;
 import com.albo.test.models.entities.Collaborator;
+import com.albo.test.models.entities.Comic;
 import com.albo.test.models.entities.ComicCharacter;
+import com.albo.test.models.entities.RelatedCharacter;
 import com.albo.test.models.entities.Rol;
 import com.albo.test.models.services.ICatalogsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -52,6 +55,9 @@ public class SyncController {
 		
 		//Vaciamos la tabla de relaciones de colaboradores por rol
 		catService.deleteAll("characterxrol");
+		
+		//Vaciamos la tabla de relaciones de caracteres  por comic y personajes relacionados
+		catService.deleteAll("characterxrelated");
 		
 		//Obtenemos los personajes dados de alta (Iron man y Capitan America
 		ComicCharacter comic = new ComicCharacter();
@@ -98,42 +104,14 @@ public class SyncController {
 		  if(actualObj!=null && actualObj.get("data")!=null && actualObj.get("data").get("results")!=null) {
 			  //Si se obtiene informacion en el apartado results, se recorre
 			  while(count<actualObj.get("data").get("results").size()) {
-				  //Validamos que no sea null la porcion de JSON de donde tomamos creadores e Items
-				if(actualObj.get("data").get("results").get(count).get("creators")!=null
-					&& actualObj.get("data").get("results").get(count).get("creators").get("items")!=null) {
-						int items = 0;
-						
-						while(items<actualObj.get("data").get("results").get(count).get("creators").get("items").size()) {
-							Rol myRol = new Rol();
-							myRol.setName(actualObj.get("data").get("results").get(count).get("creators").get("items").get(items).get("role").toString().replaceAll("\"","").replaceAll("'",""));
-							List<Rol> newRol = catService.findRolByCriteria(myRol);
-							//Si el catalogo se encuentra dado de alta como "editor", "writer" o "colorist", entonces continua
-							if(!newRol.isEmpty()) {
-								
-								//Del campo resourceURI obtenemos la ultima parte de la cadena, la cual corresponde al Id del colaborador
-								String[] uri = actualObj.get("data").get("results").get(count).get("creators").get("items").get(items).get("resourceURI").toString().split("/");
-								
-								Object ent = null; //catService.findById("collaborators", uri[uri.length-1]);
-								//Guardamos u actualizamos el colaborador 
-								Collaborator newCollaborator = new Collaborator();
-								newCollaborator.setIdCollaborator(new Long(uri[uri.length-1].toString().replaceAll("\"", "")));
-								newCollaborator.setName(actualObj.get("data").get("results").get(count).get("creators").get("items").get(items).get("name").toString().replaceAll("\"", ""));
-								ent = catService.save("collaborators", newCollaborator);
-										
-								//Obtenemos la respuesta despues de guardar para obtener Id
-								Collaborator col = mapper.convertValue(ent, Collaborator.class);
-								//Guardamos ahora la relacion de colaborador con el rol			
-								CharacterXRolXCollaboratorIdentity rel = new CharacterXRolXCollaboratorIdentity();
-								rel.setIdCollaborator(col.getIdCollaborator());
-								rel.setIdRol(newRol.get(0).getIdRol());
-								rel.setIdCharacter(co.getIdCharacter());
-								catService.save("characterxrol", rel);
-										
-							}
-									
-						items++;
-						}
-					}
+				  
+				  	if(!chargeCollaboratorsRol(actualObj,count,co)) 
+				  		response.put("Error", "No se pudo agregar las relaciones de colaborador");
+				  	
+					if(!chargeComicsRelatedCharacters(actualObj,count,co))
+						response.put("Error", "No se pudo agregar las relaciones de comics");
+				  	
+				
 					count++;
 			  	}
 		  	}
@@ -167,4 +145,110 @@ public class SyncController {
 		list.add(catService.findAll("collaborators"));
 		return new ResponseEntity<Object>(list, HttpStatus.OK);
   }
+	
+	public Boolean chargeComicsRelatedCharacters(JsonNode actualObj,int count,ComicCharacter co) {
+		ObjectMapper mapper = new ObjectMapper();
+		//Validamos que no sea null la porcion de JSON de donde tomamos los comics
+		if(actualObj.get("data").get("results").get(count).get("id")!=null
+		&& actualObj.get("data").get("results").get(count).get("title")!=null) {
+			Object ent = null; 
+			try {
+				Comic com = new Comic();	
+				
+				com.setIdComic(Long.valueOf(actualObj.get("data").get("results").get(count).get("id").toString().replaceAll("\"", "")));
+				com.setName(actualObj.get("data").get("results").get(count).get("title").toString().replaceAll("\"", ""));
+				ent = catService.save("comic", com);
+				Comic idComic = mapper.convertValue(ent, Comic.class);
+			
+				//Validamos que no sea null la porcion de JSON de donde tomamos personajes relacionados e Items
+				if(actualObj.get("data").get("results").get(count).get("characters")!=null
+					&& actualObj.get("data").get("results").get(count).get("characters").get("items")!=null) {
+					int items = 0;
+				
+					while(items<actualObj.get("data").get("results").get(count).get("characters").get("items").size()) {
+					
+						
+						//Del campo resourceURI obtenemos la ultima parte de la cadena, la cual corresponde al Id del colaborador
+						String[] uri = actualObj.get("data").get("results").get(count).get("characters").get("items").get(items).get("resourceURI").toString().split("/");
+						
+						ent = null; //catService.findById("collaborators", uri[uri.length-1]);
+						//Guardamos u actualizamos el colaborador 
+						RelatedCharacter newCharacter= new RelatedCharacter();
+						Long myId = new Long(uri[uri.length-1].toString().replaceAll("\"", ""));
+						if(myId!=co.getIdCharacter()) {
+							newCharacter.setIdRelated(myId);
+							newCharacter.setName(actualObj.get("data").get("results").get(count).get("characters").get("items").get(items).get("name").toString().replaceAll("\"", ""));
+							ent = catService.save("relatedcharacter", newCharacter);
+									
+							//Obtenemos la respuesta despues de guardar para obtener los ids
+							RelatedCharacter col = mapper.convertValue(ent, RelatedCharacter.class);
+							//Guardamos ahora la relacion de colaborador con el rol			
+							CharXRelatedCharacterXComicIdentity rel = new CharXRelatedCharacterXComicIdentity();
+							rel.setIdCharacter(co.getIdCharacter());
+							rel.setIdRelated(col.getIdRelated());
+							rel.setIdComic(idComic.getIdComic());
+							catService.save("characterxrelated", rel);
+						}		
+					
+							
+						items++;
+					}
+				}
+			}catch(Exception e) {
+				e.getMessage();
+				return false;
+			}
+		  }
+		return true;
+
+	}
+	
+	public Boolean chargeCollaboratorsRol(JsonNode actualObj,int count,ComicCharacter co) {
+		ObjectMapper mapper = new ObjectMapper();
+		  //Validamos que no sea null la porcion de JSON de donde tomamos creadores e Items
+		if(actualObj.get("data").get("results").get(count).get("creators")!=null
+			&& actualObj.get("data").get("results").get(count).get("creators").get("items")!=null) {
+				int items = 0;
+				
+				while(items<actualObj.get("data").get("results").get(count).get("creators").get("items").size()) {
+					Rol myRol = new Rol();
+					myRol.setName(actualObj.get("data").get("results").get(count).get("creators").get("items").get(items).get("role").toString().replaceAll("\"","").replaceAll("'",""));
+					List<Rol> newRol = catService.findRolByCriteria(myRol);
+					//Si el catalogo se encuentra dado de alta como "editor", "writer" o "colorist", entonces continua
+					if(!newRol.isEmpty()) {
+						
+						//Del campo resourceURI obtenemos la ultima parte de la cadena, la cual corresponde al Id del colaborador
+						String[] uri = actualObj.get("data").get("results").get(count).get("creators").get("items").get(items).get("resourceURI").toString().split("/");
+						
+						Object ent = null; //catService.findById("collaborators", uri[uri.length-1]);
+						//Guardamos u actualizamos el colaborador 
+						try {
+							Collaborator newCollaborator = new Collaborator();
+							newCollaborator.setIdCollaborator(new Long(uri[uri.length-1].toString().replaceAll("\"", "")));
+							newCollaborator.setName(actualObj.get("data").get("results").get(count).get("creators").get("items").get(items).get("name").toString().replaceAll("\"", ""));
+							ent = catService.save("collaborators", newCollaborator);
+							
+							//Obtenemos la respuesta despues de guardar para obtener Id
+							Collaborator col = mapper.convertValue(ent, Collaborator.class);
+							//Guardamos ahora la relacion de colaborador con el rol			
+							CharacterXRolXCollaboratorIdentity rel = new CharacterXRolXCollaboratorIdentity();
+							rel.setIdCollaborator(col.getIdCollaborator());
+							rel.setIdRol(newRol.get(0).getIdRol());
+							rel.setIdCharacter(co.getIdCharacter());
+							catService.save("characterxrol", rel);
+							
+						}catch(Exception e) {
+							e.getMessage();
+							return false;
+						}
+						
+								
+					}
+							
+				items++;
+				}
+			}
+		return true;
+	}
+	
 }
