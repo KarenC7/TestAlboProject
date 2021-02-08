@@ -53,6 +53,7 @@ Note: You can find the call on SyncController.java and change the params
 1. Run As -> Maven build
 2. Write on blackspace "Goals": package
 3. Run
+4. You can find your JAR at {projectPath}/target
 
 
 ## To execute .sh files 
