@@ -42,11 +42,11 @@ public class SyncController {
 	private ICatalogsService catService;
 	
 	/**
-	 * @desc ruta general para sincronizar los colaboradores de comics de cada personaje
+	 * @desc ruta general para sincronizar los colaboradores de comics de cada personaje y comics
 	 * @param NA
 	 * @return ResponseEntity<?>(JSON del registro de la entidad Collaborators, estatus de respuesta) 
 	*/
-	@GetMapping("/sync/collaborators")
+	@GetMapping("/sync")
 	public ResponseEntity<?> sync() throws IOException {
 		//Declaramos el response que se retornara
 		Map<String, Object> response = new HashMap<>();
@@ -146,6 +146,11 @@ public class SyncController {
 		return new ResponseEntity<Object>(list, HttpStatus.OK);
   }
 	
+	
+	/**
+	 * @desc ruta  para sincronizar los  comics de cada personaje
+	
+	*/
 	public Boolean chargeComicsRelatedCharacters(JsonNode actualObj,int count,ComicCharacter co) {
 		ObjectMapper mapper = new ObjectMapper();
 		//Validamos que no sea null la porcion de JSON de donde tomamos los comics
@@ -202,7 +207,10 @@ public class SyncController {
 		return true;
 
 	}
+	/**
+	 * @desc ruta  para sincronizar los colaboradores de comics de cada personaje
 	
+	*/
 	public Boolean chargeCollaboratorsRol(JsonNode actualObj,int count,ComicCharacter co) {
 		ObjectMapper mapper = new ObjectMapper();
 		  //Validamos que no sea null la porcion de JSON de donde tomamos creadores e Items

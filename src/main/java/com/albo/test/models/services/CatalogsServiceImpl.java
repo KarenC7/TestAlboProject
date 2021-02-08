@@ -131,8 +131,7 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	        		CharXRelatedCharacterXComic chrel = new CharXRelatedCharacterXComic();
 	            	chrel.setCharacterXRelatedIdentity(rel);
 	        		return charRelDao.save(chrel);
-	        	
-	            default:
+	        	 default:
 	                return null;
 	        }
 	    }
@@ -227,14 +226,19 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	        }
 		}
 
+		
+		/**
+	   	 *Aqui comienzan los metodos de filtrado personalizado por tabla
+	   	 * 
+	   	*/
+		
+		
 		@Override
 		 public List<Collaborator> findCollaboratorsByCriteria(Object entityFilter){
 			 Collaborator filter = mapper.convertValue(entityFilter, Collaborator.class);
 				
 				return collaboratorDao.findAll(new  Specification<Collaborator>() {
-					/**
-					 * 
-					 */
+				
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -381,9 +385,6 @@ public class CatalogsServiceImpl implements ICatalogsService {
 						return cb.and(predicates.toArray(new Predicate[predicates.size()]));
 					}
 
-					
-
-			
 					
 				});
 		    }
