@@ -13,13 +13,20 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.albo.test.models.dao.ICharXRelatedCharacterXComicDao;
 import com.albo.test.models.dao.ICharacterXRolXCollaboratorDao;
 import com.albo.test.models.dao.ICollaboratorDao;
 import com.albo.test.models.dao.IComicCharacterDao;
+import com.albo.test.models.dao.IComicDao;
+import com.albo.test.models.dao.IRelatedCharacterDao;
 import com.albo.test.models.dao.IRolDao;
 import com.albo.test.models.entities.Collaborator;
+import com.albo.test.models.entities.Comic;
 import com.albo.test.models.entities.ComicCharacter;
+import com.albo.test.models.entities.RelatedCharacter;
 import com.albo.test.models.entities.Rol;
+import com.albo.test.models.entities.CharXRelatedCharacterXComic;
+import com.albo.test.models.entities.CharXRelatedCharacterXComicIdentity;
 import com.albo.test.models.entities.CharacterXRolXCollaborator;
 import com.albo.test.models.entities.CharacterXRolXCollaboratorIdentity;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +40,12 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	private IComicCharacterDao characterDao;
 	@Autowired
 	private ICharacterXRolXCollaboratorDao characterRolDao;
+	@Autowired
+	private IComicDao comicDao;
+	@Autowired
+	private IRelatedCharacterDao relatedDao;
+	@Autowired
+	private ICharXRelatedCharacterXComicDao charRelDao;
 
 	@Autowired
 	private IRolDao rolDao;
@@ -51,7 +64,12 @@ public class CatalogsServiceImpl implements ICatalogsService {
 				return rolDao.findAll();
 			case "characterxrol":
 				return characterRolDao.findAll();
-			
+			case "comic":
+				return comicDao.findAll();
+			case "relatedCharacter":
+				return relatedDao.findAll();
+			case "characterxrelated":
+				return charRelDao.findAll();
 			default:
 				return null;
 		}
@@ -66,6 +84,12 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	          	return collaboratorDao.findById(new Long(id));
 	       case "characters":                
 	          	return characterDao.findById(new Long(id));
+	       case "roles":                
+	          	return rolDao.findById(new Long(id));
+	       case "comic":                
+	          	return comicDao.findById(new Long(id));
+	       case "relatedCharacter":                
+	          	return relatedDao.findById(new Long(id));
 	       default:
 	            return null;
 	    }
@@ -88,7 +112,7 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	        	case "characters":                
 	        		ComicCharacter ch = mapper.convertValue(entity, ComicCharacter.class);
 	            	return characterDao.save(ch);
-	        	case "rol":                
+	        	case "roles":                
 	        		Rol ro = mapper.convertValue(entity, Rol.class);
 	            	return rolDao.save(ro);
 	        	case "characterxrol":                
@@ -96,7 +120,17 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	        		CharacterXRolXCollaborator chcol = new CharacterXRolXCollaborator();
 	            	chcol.setCharacterXRolIdentity(ide);
 	        		return characterRolDao.save(chcol);
-	        	
+	        	case "comic":                
+	        		Comic co = mapper.convertValue(entity, Comic.class);
+	            	return comicDao.save(co);
+	        	case "relatedcharacter":                
+	        		RelatedCharacter relchar = mapper.convertValue(entity, RelatedCharacter.class);
+	            	return relatedDao.save(relchar);
+	        	case "characterxrelated":                
+	        		CharXRelatedCharacterXComicIdentity rel = mapper.convertValue(entity, CharXRelatedCharacterXComicIdentity.class);
+	        		CharXRelatedCharacterXComic chrel = new CharXRelatedCharacterXComic();
+	            	chrel.setCharacterXRelatedIdentity(rel);
+	        		return charRelDao.save(chrel);
 	        	
 	            default:
 	                return null;
@@ -117,6 +151,18 @@ public class CatalogsServiceImpl implements ICatalogsService {
 				case "collaborators":  
 					collaboratorDao.deleteById(new Long(id));              
 	                break;
+				case "characters":  
+					characterDao.deleteById(new Long(id));  
+					 break;
+				case "roles":  
+					rolDao.deleteById(new Long(id));  
+	                break;
+				case "comic":  
+					comicDao.deleteById(new Long(id));
+					break;
+				case "relatedcharacter":  
+					relatedDao.deleteById(new Long(id));
+	                break;
 	            default:
 	                break;
 	        }
@@ -130,8 +176,23 @@ public class CatalogsServiceImpl implements ICatalogsService {
 				case "collaborators":  
 					collaboratorDao.deleteAll();              
 	                break;
+				case "characters":  
+					characterDao.deleteAll();  
+					 break;
+				case "roles":  
+					rolDao.deleteAll();  
+	                break;
 				case "characterxrol":  
 					characterRolDao.deleteAll();  
+	                break;
+				case "comic":  
+					comicDao.deleteAll();
+					break;
+				case "relatedcharacter":  
+					relatedDao.deleteAll();
+	                break;
+				case "characterxrelated":  
+					charRelDao.deleteAll();  
 	                break;
 	            default:
 	                break;
@@ -152,7 +213,15 @@ public class CatalogsServiceImpl implements ICatalogsService {
 	            	return findCollaboratorsByCriteria(filter);
 	            case "characters":            
 	            	return findCharactersByCriteria(filter);
-	           
+	            case "roles":  
+	            	return findRolByCriteria(filter);
+				case "comic":  
+					return findComicByCriteria(filter);
+				case "relatedcharacter":  
+					return findRelatedCharacterByCriteria(filter);
+				case "characterxrelated":  
+					return findCharacterRelByCriteria(filter);
+				
 	            default:
 	                return null;
 	        }
@@ -236,5 +305,87 @@ public class CatalogsServiceImpl implements ICatalogsService {
 				});
 		    }
 		
+		
+		 public List<Comic> findComicByCriteria(Object entityFilter){
+			Comic filter = mapper.convertValue(entityFilter, Comic.class);
+				
+				return comicDao.findAll(new  Specification<Comic>() {
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public Predicate toPredicate(Root<Comic> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+						List<Predicate> predicates = new ArrayList<>();
+						
+						if(filter.getIdComic()!= null) {
+							predicates.add(cb.and(cb.equal(root.get("idComic"), filter.getIdComic())));
+		                }
+						if(filter.getName() != null) {
+							predicates.add(cb.and(cb.like(cb.upper(root.get("name")), "%" + filter.getName().toUpperCase() + "%")));
+						}
+						return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+					}
+
+			
+					
+				});
+		    }
+		 
+		 public List<RelatedCharacter> findRelatedCharacterByCriteria(Object entityFilter){
+			 RelatedCharacter filter = mapper.convertValue(entityFilter, RelatedCharacter.class);
+					
+					return relatedDao.findAll(new  Specification<RelatedCharacter>() {
+						/**
+						 * 
+						 */
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public Predicate toPredicate(Root<RelatedCharacter> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+							List<Predicate> predicates = new ArrayList<>();
+							
+							if(filter.getIdRelated()!= null) {
+								predicates.add(cb.and(cb.equal(root.get("idRelated"), filter.getIdRelated())));
+			                }
+							if(filter.getName() != null) {
+								predicates.add(cb.and(cb.like(cb.upper(root.get("name")), "%" + filter.getName().toUpperCase() + "%")));
+							}
+							return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+						}
+
+				
+						
+					});
+			    }
+
+		
+		public List<CharXRelatedCharacterXComic> findCharacterRelByCriteria(Object entityFilter){
+			CharXRelatedCharacterXComicIdentity filter = mapper.convertValue(entityFilter, CharXRelatedCharacterXComicIdentity.class);
+				
+				return charRelDao.findAll(new  Specification<CharXRelatedCharacterXComic>() {
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public Predicate toPredicate(Root<CharXRelatedCharacterXComic> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+						List<Predicate> predicates = new ArrayList<>();
+						
+						if(filter.getIdRelated() != null) {
+							predicates.add(cb.and(cb.equal(root.get("related").get("idRelated"), filter.getIdRelated())));
+		                }
+						
+						return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+					}
+
+					
+
+			
+					
+				});
+		    }
 	
 }

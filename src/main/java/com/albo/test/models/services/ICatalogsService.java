@@ -2,6 +2,7 @@ package com.albo.test.models.services;
 
 import java.util.List;
 
+import com.albo.test.models.entities.CharXRelatedCharacterXComic;
 import com.albo.test.models.entities.Collaborator;
 import com.albo.test.models.entities.ComicCharacter;
 import com.albo.test.models.entities.Rol;
@@ -25,5 +26,8 @@ public interface ICatalogsService {
 	public List<Rol> findRolByCriteria(Object entityFilter);
 
 	public void deleteAll(String catalogo);
+
+	public List<CharXRelatedCharacterXComic> findCharacterRelByCriteria(Object entityFilter);
+
 	
 }
