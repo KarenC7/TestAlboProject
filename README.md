@@ -1,4 +1,4 @@
-# TestAlboProject
+# TestSpringProject
 Application with Rest Services to get information about Marvel Characters and Comics Collaborators
 
 ## Requeriments
@@ -57,7 +57,7 @@ Note: You can find the call on SyncController.java and change the params
 
 
 ## To execute .sh files 
-1. Put getInformatio.sh on {projectPath}/target or in the same path where you generate or save "test-0.0.1-SNAPSHOT.jar"
+1. Put getInformation.sh on {projectPath}/target or in the same path where you generate or save "test-0.0.1-SNAPSHOT.jar"
 1. Example: exect on console ./getInformation.sh  (Recommended Git bash)
 Nota: getInformation.sh run the application, then you can test services
 
