@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 //Permite que se llamen las APIS desde el dominio de prueba
-@CrossOrigin(origins = {"http://test.albo.mx/"})
+@CrossOrigin(origins = {""})
 
 @RestController
 @RequestMapping("/")

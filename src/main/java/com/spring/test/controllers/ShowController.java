@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.spring.test.models.services.ICharactersService;
 
 //Permite que se llamen las APIS desde el dominio de prueba
-@CrossOrigin(origins = {"http://test.albo.mx/"})
+@CrossOrigin(origins = {""})
 
 //Urls solicitadas para mostrar por personaje
 

@@ -32,7 +32,7 @@ import com.spring.test.models.entities.Rol;
 import com.spring.test.models.services.ICatalogsService;
 
 //Permite que se llamen las APIS desde el dominio de prueba
-@CrossOrigin(origins = {"http://test.albo.mx/"})
+@CrossOrigin(origins = {""})
 
 @RestController
 @RequestMapping("/_api")
