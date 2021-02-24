@@ -4,7 +4,7 @@ Application with Rest Services to get information about Marvel Characters and Co
 ## Requeriments
 - Tomcat 7
 - Java 8 (java version "1.8.0_281" 
-- Mysql
+- Mysql (Xampp)
 
 
 ## Database (MySQL)
@@ -19,12 +19,12 @@ Application with Rest Services to get information about Marvel Characters and Co
 4. Run Maven Clean
 5. Configure Tomcat 7.0 Server
 6. Run on server (*If you can not initialize on Server then ->
-    1. Run configurations -> Java Application -> New Configuration -> Select Project Test Albo -> Define main.class like com.albo.test.TestApplication
+    1. Run configurations -> Java Application -> New Configuration -> Select Project Test Spring -> Define main.class like com.spring.test.TestApplication
     2. Run configurations -> Run
 )
 
 ## Main services
-Important: You can find all posible request on https://www.postman.com/KarenCast7/ -> Test Albo
+Important: You can find all posible request on https://www.postman.com/KarenCast7/ -> Test Spring
 
 1. To get collaborators and roles by Character
 http://localhost:8080/marvel/collaborators/ironman
@@ -37,7 +37,7 @@ http://localhost:8080/marvel/collaborators/capamerica
 3. To do Sync of information
 http://localhost:8080/_api/sync
 
-3. You can change {localhost:8080} by {test.albo.mx}
+3. You can change {localhost:8080} by {test.spring.mx}
 
 
 ## Keys to Use Api Key from Marvel
